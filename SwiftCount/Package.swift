@@ -8,12 +8,16 @@ let package = Package(
   products: [
     .executable(name: "swiftcount", targets: ["SwiftCount"]),
   ],
+  dependencies: [
+    .package(name: "SwiftSyntax", url: "https://github.com/apple/swift-syntax.git", .exact("0.50200.0")),
+  ],
   targets: [
     .target(
       name: "SwiftCount",
       dependencies: ["SwiftCountCore"]),
     .target(
-      name: "SwiftCountCore"),
+      name: "SwiftCountCore",
+      dependencies: ["SwiftSyntax"]),
     .testTarget(
       name: "SwiftCountCoreTests",
       dependencies: ["SwiftCountCore"]),
