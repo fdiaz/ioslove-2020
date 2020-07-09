@@ -5,8 +5,12 @@ import PackageDescription
 
 let package = Package(
   name: "SwiftCount",
+  platforms: [
+    .macOS(.v10_13)
+  ],
   products: [
-    .executable(name: "swiftcount", targets: ["SwiftCount"]),
+    .executable(name: "SwiftCount", targets: ["SwiftCount"]),
+    .library(name: "SwiftCountCore", targets: ["SwiftCountCore"])
   ],
   dependencies: [
     .package(name: "SwiftSyntax", url: "https://github.com/apple/swift-syntax.git", .exact("0.50200.0")),
