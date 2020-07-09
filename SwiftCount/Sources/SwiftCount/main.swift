@@ -6,9 +6,9 @@ struct StderrOutputStream: TextOutputStream {
 }
 
 var arguments = CommandLine.arguments
+var standardError = StderrOutputStream()
 
 guard arguments.count > 1 else {
-  var standardError = StderrOutputStream()
 
   print("swiftcount Error: Need to pass at least one file path", to: &standardError)
 
@@ -18,8 +18,13 @@ guard arguments.count > 1 else {
 let filePaths: [String] = Array(arguments.dropFirst())
 
 let swiftReader = SwiftFileReader(filePaths: filePaths)
-let lineCount = swiftReader.run()
+do {
+  let lineCount = try swiftReader.run()
+  lineCount.forEach {
+    print("\($0.numberOfLines) \($0.relativePath)")
+  }
+} catch {
+  print("swiftcount Error: \(error)", to: &standardError)
 
-lineCount.forEach {
-  print("\($0.numberOfLines) \($0.relativePath)")
+  exit(1)
 }
