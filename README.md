@@ -1,2 +1,2 @@
-# ioslove-2020
-Scripting in Swift
+# Scripting en Swift
+Presentadio en iOS Love Meetup el 9 de Julio, 2020.
