@@ -24,7 +24,7 @@ public struct SwiftFileReader {
       let syntaxVisitor = FileReaderSyntaxVisitor()
       let fileSyntax = try SyntaxParser.parse($0)
       syntaxVisitor.walk(fileSyntax)
-      return LineCount(numberOfLines: syntaxVisitor.lineCount, relativePath: $0.lastPathComponent)
+      return LineCount(numberOfLines: syntaxVisitor.lineCounts - syntaxVisitor.commentCount, relativePath: $0.lastPathComponent)
     }
   }
 
@@ -40,5 +40,43 @@ public struct LineCount: Equatable {
 }
 
 private final class FileReaderSyntaxVisitor: SyntaxVisitor {
-  fileprivate let lineCount: Int = 1
+  fileprivate var commentCount: Int = 0
+  fileprivate var lineCounts: Int = 0
+
+  override func visit(_ token: TokenSyntax) -> SyntaxVisitorContinueKind {
+    let extraComments = countComments(from: token.leadingTrivia) + countComments(from: token.trailingTrivia)
+    let newLines = countNewLines(from: token.leadingTrivia) + countNewLines(from: token.trailingTrivia)
+
+    commentCount += extraComments
+    lineCounts += newLines
+
+    if case .eof = token.tokenKind {
+      lineCounts += 1
+    }
+
+    return .visitChildren
+  }
+
+  private func countComments(from trivia: Trivia) -> Int {
+    return trivia.filter { triviaPiece in
+      switch triviaPiece {
+      case .lineComment, .blockComment, .docLineComment, .docBlockComment:
+        return true
+      default:
+        return false
+      }
+    }.count
+  }
+
+  private func countNewLines(from trivia: Trivia) -> Int {
+    return trivia.reduce(0) { sum, triviaPiece in
+      switch triviaPiece {
+      case .newlines(let count):
+        return sum + count
+      default:
+        return sum
+      }
+    }
+
+  }
 }
